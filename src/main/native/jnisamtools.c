@@ -1,4 +1,5 @@
 #include <htslib/hts.h>
+#include <htslib/sam.h>
 #include <stdlib.h>
 #include "jnisamtools.h"
 
@@ -12,7 +13,7 @@ JNIEXPORT jlong JNICALL Java_com_github_lindenb_jnisamtools_NativeSamReaderImpl_
   (JNIEnv *env, jclass clazz, jstring path)
   	{
   	JSamReaderPtr ptr=(JSamReaderPtr)malloc(sizeof(JSamReader));
-  	ptr->rec =  bam_init();
+  	ptr->rec =  bam_init1();
   	return (jlong)ptr;
   	}
   

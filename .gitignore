@@ -16,3 +16,5 @@ hs_err_pid*
 jeter*
 *~
 *.so
+htslib-*
+src/main/native/jnisamtools.h
