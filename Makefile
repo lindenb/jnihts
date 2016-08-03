@@ -50,11 +50,11 @@ CC?=gcc
 
 
 #create a shared dynamic library for BWA
-${native.dir}/libjnisamtools.so : ${native.dir}/jnisamtools.o htslib-${htslib.version}/libhts.so
+${native.dir}/libjnisamtools.so : ${native.dir}/jnisamtools.o
 	$(CC) -shared -o $@ $<  -L ${native.dir} -Lhtslib-${htslib.version} -lhts -lm -lz -lpthread
 
 #compile the JNI bindings
-${native.dir}/jnisamtools.o: ${native.dir}/jnisamtools.c ${native.dir}/jnisamtools.h
+${native.dir}/jnisamtools.o: ${native.dir}/jnisamtools.c ${native.dir}/jnisamtools.h htslib-${htslib.version}/libhts.so
 	$(CC) -c $(CFLAGS) -o $@ $(CFLAGS) -fPIC  ${JDK_JNI_INCLUDES}  -Ihtslib-${htslib.version} $<
 
 #create JNI header
@@ -76,5 +76,5 @@ htslib-${htslib.version}/libhts.so :
 	unzip -o "${htslib.version}.zip" && (cd "htslib-${htslib.version}" && make ) && rm -f "${htslib.version}.zip"
 
 clean:
-	rm -rf ${htsjdk.jars}  htslib-${htslib.version}/libhts.so
+	rm -rf ${htsjdk.jars}  htslib-${htslib.version}
 

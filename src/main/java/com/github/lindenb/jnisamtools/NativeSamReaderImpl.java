@@ -13,7 +13,13 @@ public void close() throws IOException {
 	this.data = 0L;
 	}
 
+
+public boolean next() {
+	int i = _next(this.data);
+	return i==0;
+	}
+
 private static native long _samopen(final String path);
 private static native void _samclose(final long data);
-
+private static native int _next(final long data);
 }
