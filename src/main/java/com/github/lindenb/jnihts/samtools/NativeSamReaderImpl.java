@@ -45,7 +45,6 @@ public void close() {
 public SAMRecord advance() {
 	int i = _next(this.data);
 	if(i<0) {
-		System.err.println(i);
 		return null;
 	}
 	final SAMRecord rec= samRecordFactory.createSAMRecord(getFileHeader());
@@ -54,6 +53,18 @@ public SAMRecord advance() {
 	rec.setReferenceIndex(_referenceIndex(this.data));
 	rec.setAlignmentStart(_alignStart(this.data));
 	rec.setReadBases(_sequence(this.data));
+	byte b[] = _qualities(this.data);
+	if(b!=null) {
+		rec.setBaseQualities(b);
+	}
+	b = _cigar(this.data);
+	if(b!=null) {
+		rec.setCigarString(new String(b));
+	}
+	
+	rec.setMateReferenceIndex(_mateReferenceIndex(this.data));
+	rec.setMateAlignmentStart(_matepos(this.data));
+	rec.setInferredInsertSize(_isize(this.data));
 	return rec;
 	}
 
@@ -66,5 +77,11 @@ private static native byte[] _readName(final long data);
 private static native int _referenceIndex(final long data);
 private static native int _alignStart(final long data);
 private static native byte[] _sequence(final long data);
+private static native byte[] _qualities(final long data);
+private static native byte[] _cigar(final long data);
+private static native int _mateReferenceIndex(final long data);
+private static native int _matepos(final long data);
+private static native int _isize(final long data);
+
 
 }

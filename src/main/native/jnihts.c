@@ -1,6 +1,7 @@
 #include <htslib/hfile.h>
 #include <htslib/hts.h>
 #include <htslib/sam.h>
+#include <htslib/kstring.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -139,3 +140,71 @@ JNIEXPORT jbyteArray JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamRe
    	return result;
   	}
  
+  JNIEXPORT jbyteArray JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamReaderImpl__1qualities
+   (JNIEnv *env, jclass clazz, jlong ptrid)
+    {
+    int i;
+    uint8_t *s ;
+    jbyteArray result;
+  	JSamReaderPtr ptr=(JSamReaderPtr)(intptr_t)ptrid;
+  	if(ptr==0) return 0;
+  	s = bam_get_qual( ptr->rec);
+  	if (s[0] == 0xff) return 0;
+  	result=(*env)->NewByteArray(env, ptr->rec->core.l_qseq);
+  	for (i = 0; i < ptr->rec->core.l_qseq; ++i) {
+  		char c = s[i] ;
+  		(*env)->SetByteArrayRegion(env, result, i, 1,(jbyte*)&c);
+  		}
+   	return result;
+  	}
+  
+    JNIEXPORT jbyteArray JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamReaderImpl__1cigar
+   (JNIEnv *env, jclass clazz, jlong ptrid)
+    {
+    int i;
+    uint8_t *s ;
+    jbyteArray result;
+  	JSamReaderPtr ptr=(JSamReaderPtr)(intptr_t)ptrid;
+  	if(ptr==0) return 0;
+  	if (ptr->rec->core.n_cigar) {
+  		kstring_t str = { 0, 0, NULL };
+  		uint32_t *cigar = bam_get_cigar(ptr->rec);
+        for (i = 0; i < ptr->rec->core.n_cigar; ++i) {
+            kputw(bam_cigar_oplen(cigar[i]), &str);
+            kputc(bam_cigar_opchr(cigar[i]), &str);
+        	}
+	  	result=(*env)->NewByteArray(env, ks_len(&str));
+		(*env)->SetByteArrayRegion(env, result, 0, ks_len(&str),(jbyte*)ks_str(&str));
+		free(str.s);
+	   	return result;
+  		}
+  	else
+  		{
+  		return 0;
+  		}
+  	}
+ 
+ 
+  JNIEXPORT jint JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamReaderImpl__1matepos
+  (JNIEnv *env, jclass clazz, jlong ptrid)
+  {
+  	JSamReaderPtr ptr=(JSamReaderPtr)(intptr_t)ptrid;
+  	if(ptr==0) return 0;
+  	return (jint)(ptr->rec->core.mpos);
+  }
+ 
+   JNIEXPORT jint JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamReaderImpl__1isize
+  (JNIEnv *env, jclass clazz, jlong ptrid)
+  {
+  	JSamReaderPtr ptr=(JSamReaderPtr)(intptr_t)ptrid;
+  	if(ptr==0) return 0;
+  	return (jint)(ptr->rec->core.isize);
+  }
+  
+   JNIEXPORT jint JNICALL Java_com_github_lindenb_jnihts_samtools_NativeSamReaderImpl__1mateReferenceIndex
+  (JNIEnv *env, jclass clazz, jlong ptrid)
+  {
+  	JSamReaderPtr ptr=(JSamReaderPtr)(intptr_t)ptrid;
+  	if(ptr==0) return 0;
+  	return (jint)(ptr->rec->core.mtid);
+  }
