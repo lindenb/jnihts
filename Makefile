@@ -4,10 +4,10 @@ JAVA ?= java
 JAVAC ?= javac
 JAVAH ?= javah
 CFLAGS=-O3 -Wall  -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE
-BWAJNIQUALPACKAGE=com.github.lindenb.jnisamtools
+BWAJNIQUALPACKAGE=com.github.lindenb.jnihts.samtools
 JAVASRCDIR=src/main/java
 JAVACLASSNAME= NativeSamReader NativeSamReaderFactory NativeSamReaderImpl
-JAVACLASSSRC=$(addprefix src/main/java/com/github/lindenb/jnisamtools/,$(addsuffix .java,$(JAVACLASSNAME)))
+JAVACLASSSRC=$(addprefix src/main/java/com/github/lindenb/jnihts/samtools/,$(addsuffix .java,$(JAVACLASSNAME)))
 JAVAQUALNAME=$(addprefix ${BWAJNIQUALPACKAGE}.,$(JAVACLASSNAME))
 ## http://stackoverflow.com/questions/9551416
 EMPTY :=
@@ -44,21 +44,25 @@ htsjdk.jars  =  \
 native.dir=src/main/native
 
 
-CC?=gcc
+CC?=gcc test
 .PHONY:all compile 
 
-
+test: ${native.dir}/libjnihts.so
+	mkdir -p tmp
+	javac -d tmp -cp $(subst ${SPACE},:,${htsjdk.jars}) -sourcepath src/test/java:src/main/java src/test/java/test/github/lindenb/jnihts/samtools/TestNativeSamReaderFactory.java
+	java  -Djava.library.path=/commun/data/users/lindenb/src/jnisamtools/src/main/native:/commun/data/users/lindenb/src/jnisamtools/htslib-0f2a88a03852085174aabee6e1f5bda76d66311f -cp tmp:$(subst ${SPACE},:,${htsjdk.jars}):src/main/java test.github.lindenb.jnihts.samtools.TestNativeSamReaderFactory
+	
 
 #create a shared dynamic library for BWA
-${native.dir}/libjnisamtools.so : ${native.dir}/jnisamtools.o
+${native.dir}/libjnihts.so : ${native.dir}/jnihts.o
 	$(CC) -shared -o $@ $<  -L ${native.dir} -Lhtslib-${htslib.version} -lhts -lm -lz -lpthread
 
 #compile the JNI bindings
-${native.dir}/jnisamtools.o: ${native.dir}/jnisamtools.c ${native.dir}/jnisamtools.h htslib-${htslib.version}/libhts.so
+${native.dir}/jnihts.o: ${native.dir}/jnihts.c ${native.dir}/jnihts.h htslib-${htslib.version}/libhts.so
 	$(CC) -c $(CFLAGS) -o $@ $(CFLAGS) -fPIC  ${JDK_JNI_INCLUDES}  -Ihtslib-${htslib.version} $<
 
 #create JNI header
-${native.dir}/jnisamtools.h : compile
+${native.dir}/jnihts.h : compile
 	$(JAVAH) -o $@ -jni -classpath ${JAVASRCDIR} $(JAVAQUALNAME)
 	
 #compile java classes

@@ -17,4 +17,4 @@ jeter*
 *~
 *.so
 htslib-*
-src/main/native/jnisamtools.h
+src/main/native/jnihts.h
