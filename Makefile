@@ -81,4 +81,5 @@ htslib-${htslib.version}/libhts.so :
 
 clean:
 	rm -rf ${htsjdk.jars}  htslib-${htslib.version}
+	find src -type f -name "*.class" -delete
 
